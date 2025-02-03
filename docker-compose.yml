@@ -5,8 +5,7 @@ networks:
 volumes:
   goroot:
   gocache:
-  mariadbdata:
-  # pgdata:
+  pgdata:
 
 services:
   app:
@@ -16,52 +15,43 @@ services:
       - .:/app
     environment:
       - PORT=8080
+      - KEY=s!gningK3y###
+      - SALT=5@lt!!!
+    working_dir: /app
     ports:
       - 8080:8080
+    command:
+      - tail
+      - -f
+      - /etc/hosts
     networks:
       go:
         aliases:
           - app
     depends_on:
-      - mysql_db
+      - pgsql_db
 
-    mysql_db:
-      container_name: db
-      image: mariadb:lts
-      environment:
-        MYSQL_ROOT_PASSWORD: root
-        MYSQL_DATABASE: absensi_db
-        MYSQL_USER: admin
-        MYSQL_PASSWORD: password
-      volumes:
-        - mariadbdata:/var/lib/mysql
-      ports:
-        - "3306:3306"
-      networks:
-        net:
-          aliases:
-            - mysql
-    # pgsql_db:
-    #   image: postgres:16-alpine
-    #   restart: always
-    #   shm_size: 128mb
-    #   environment:
-    #     POSTGRES_PASSWORD: password
-    #     POSTGRES_DB: auth_db
-    #   volumes:
-    #     - pgdata:/var/lib/postgresql/data
-    #   ports:
-    #     - 5432:5432
-    #   networks:
-    #     go:
-    #       aliases:
-    #         - auth_db
+  pgsql_db:
+    image: postgres:16-alpine
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: pgsql_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      go:
+        aliases:
+          - pgsql_db
 
-    swagger:
-      image: swaggerapi/swagger-ui:latest
-      environment:
-        - URL=/docs/swagger.yaml
-      volumes:
-        - ./docs:/usr/share/nginx/html/docs
-      ports:
-        - 8084:8080
+  swagger:
+    image: swaggerapi/swagger-ui:latest
+    environment:
+      - URL=/docs/swagger.yaml
+    volumes:
+      - ./docs:/usr/share/nginx/html/docs
+    ports:
+      - 8084:8080

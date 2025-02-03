@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/suryab-21/indico-test/app/model"
-	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
@@ -17,7 +17,7 @@ var DB *gorm.DB
 // InitDB function to init db
 func InitDB() {
 	if DB == nil {
-		dsn := "user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local"
+		dsn := "host=pgsql_db user=postgres password=password dbname=pgsql_db port=5432 sslmode=disable TimeZone=Asia/Jakarta"
 		config := &gorm.Config{
 			Logger: logger.New(
 				log.New(os.Stderr, "[GORM] ", log.LstdFlags), // io writer
@@ -34,7 +34,7 @@ func InitDB() {
 			DisableForeignKeyConstraintWhenMigrating: true,
 		}
 
-		if db, err := gorm.Open(mysql.Open(dsn), config); err == nil {
+		if db, err := gorm.Open(postgres.Open(dsn), config); err == nil {
 			DB = db.Debug()
 			AutoMigrate(DB)
 		}
