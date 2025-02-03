@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/suryab-21/sigmatech-test/app/model"
+	"github.com/suryab-21/indico-test/app/model"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"

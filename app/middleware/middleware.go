@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/suryab-21/sigmatech-test/app/helper"
+	"github.com/suryab-21/indico-test/app/helper"
 )
 
 type Middleware func(http.Handler) http.Handler

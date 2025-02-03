@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/rs/cors"
-	"github.com/suryab-21/sigmatech-test/app/middleware"
+	"github.com/suryab-21/indico-test/app/middleware"
 )
 
 func InitRoutes() http.Handler {
