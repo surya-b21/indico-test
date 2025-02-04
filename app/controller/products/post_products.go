@@ -9,6 +9,14 @@ import (
 	"github.com/suryab-21/indico-test/app/service"
 )
 
+// @Summary      Post Products
+// @Description  Add new products
+// @Tags         Inventory Management
+// @Accept       application/json
+// @Produce		 application/json
+// @Param        data   body  model.ProductAPI  true  "Body payload"
+// @Router       /products [post]
+// @Security BearerAuth
 func PostProduct(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		helper.NewErrorResponse(w, http.StatusMethodNotAllowed, "Method not allowed")

@@ -5,7 +5,7 @@ import "github.com/google/uuid"
 type Product struct {
 	Base
 	ProductAPI
-	WarehouseLocation WarehouseLocation `gorm:"foreignKey:LocationID"`
+	WarehouseLocation WarehouseLocation `json:"warehouse_location,omitempty" gorm:"foreignKey:LocationID"`
 }
 
 type ProductAPI struct {

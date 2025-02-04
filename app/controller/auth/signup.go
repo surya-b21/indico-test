@@ -22,6 +22,13 @@ type SignUpBody struct {
 	Role string `json:"role"`
 }
 
+// @Summary      Sign Up
+// @Description  Sign up new account
+// @Tags         User Authentication & Role Management
+// @Accept       application/json
+// @Produce		 application/json
+// @Param        data   body  auth.SignUpBody  true  "Sign Up Payload"
+// @Router       /register [post]
 func SignUp(w http.ResponseWriter, r *http.Request) {
 	var body SignUpBody
 

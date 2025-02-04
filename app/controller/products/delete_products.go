@@ -9,6 +9,13 @@ import (
 	"github.com/suryab-21/indico-test/app/service"
 )
 
+// @Summary      Delete Product
+// @Description  Delete a product
+// @Tags         Inventory Management
+// @Accept       application/json
+// @Produce		 application/json
+// @Router       /products/{id} [delete]
+// @Security BearerAuth
 func DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	if id == "" {

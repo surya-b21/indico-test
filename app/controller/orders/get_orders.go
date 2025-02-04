@@ -10,11 +10,18 @@ import (
 	"github.com/suryab-21/indico-test/app/service"
 )
 
+// @Summary      All Orders
+// @Description  Get all orders
+// @Tags         Order Processing
+// @Accept       application/json
+// @Produce		 application/json
+// @Router       /orders [get]
+// @Security BearerAuth
 func GetOrders(w http.ResponseWriter, r *http.Request) {
 	db := service.DB
 
 	orders := []model.Order{}
-	db.Joins("OrderItems").Find(&orders)
+	db.Preload("OrderItems").Find(&orders)
 
 	response, _ := json.Marshal(map[string]interface{}{
 		"status": "success",
@@ -24,6 +31,13 @@ func GetOrders(w http.ResponseWriter, r *http.Request) {
 	helper.NewSuccessResponse(w, response)
 }
 
+// @Summary      Get Order
+// @Description  Get order by id
+// @Tags         Order Processing
+// @Accept       application/json
+// @Produce		 application/json
+// @Router       /orders/{id} [get]
+// @Security BearerAuth
 func GetByIdOrders(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	if id == "" {

@@ -13,6 +13,13 @@ import (
 	"github.com/suryab-21/indico-test/app/service"
 )
 
+// @Summary      Users
+// @Description  Get all users
+// @Tags         User Authentication & Role Management
+// @Accept       application/json
+// @Produce		 application/json
+// @Router       /users [get]
+// @Security BearerAuth
 func GetUsers(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		helper.NewErrorResponse(w, http.StatusMethodNotAllowed, "Method not allowed")
@@ -32,6 +39,13 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 	helper.NewSuccessResponse(w, response)
 }
 
+// @Summary      Users Info
+// @Description  Get user info
+// @Tags         User Authentication & Role Management
+// @Accept       application/json
+// @Produce		 application/json
+// @Router       /users/me [get]
+// @Security BearerAuth
 func GetUserMe(w http.ResponseWriter, r *http.Request) {
 	header := r.Header.Get("Authorization")
 	headerParts := strings.Split(header, " ")

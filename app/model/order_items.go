@@ -5,8 +5,8 @@ import "github.com/google/uuid"
 type OrderItems struct {
 	Base
 	OrderItemsAPI
-	Product Product
-	Order   Order
+	Product Product `json:"product,omitempty"`
+	Order   Order   `json:"order,omitempty"`
 }
 
 type OrderItemsAPI struct {

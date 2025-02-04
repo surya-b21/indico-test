@@ -12,11 +12,18 @@ import (
 	"gorm.io/gorm"
 )
 
+// @Summary      All Products
+// @Description  Get all products
+// @Tags         Inventory Management
+// @Accept       application/json
+// @Produce		 application/json
+// @Router       /products [get]
+// @Security BearerAuth
 func GetProducts(w http.ResponseWriter, r *http.Request) {
 	db := service.DB
 
 	products := []model.Product{}
-	db.Find(&products)
+	db.Joins("WarehouseLocation").Find(&products)
 
 	response, _ := json.Marshal(map[string]interface{}{
 		"message": "success",
@@ -26,6 +33,13 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
 	helper.NewSuccessResponse(w, response)
 }
 
+// @Summary      Products
+// @Description  Get products by id
+// @Tags         Inventory Management
+// @Accept       application/json
+// @Produce		 application/json
+// @Router       /products/{id} [get]
+// @Security BearerAuth
 func GetByIdProducts(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	if id == "" {

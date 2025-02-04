@@ -50,4 +50,6 @@ var ModelList []interface{} = []interface{}{
 	&model.User{},
 	&model.Product{},
 	&model.WarehouseLocation{},
+	&model.Order{},
+	&model.OrderItems{},
 }

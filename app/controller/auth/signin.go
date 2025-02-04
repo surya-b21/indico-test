@@ -19,6 +19,13 @@ type SignInBody struct {
 	Password string `json:"password"`
 }
 
+// @Summary      Sign In
+// @Description  Sign in to get bearer token
+// @Tags         User Authentication & Role Management
+// @Accept       application/json
+// @Produce		 application/json
+// @Param        data   body  auth.SignInBody  true  "Sign In Payload"
+// @Router       /login [post]
 func SignIn(w http.ResponseWriter, r *http.Request) {
 	var body SignInBody
 

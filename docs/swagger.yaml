@@ -1,0 +1,308 @@
+basePath: /
+definitions:
+  auth.SignInBody:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  auth.SignUpBody:
+    properties:
+      name:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+      username:
+        type: string
+    type: object
+  model.OrderItemsAPI:
+    properties:
+      order_id:
+        type: string
+      product_id:
+        type: string
+      quantity:
+        type: integer
+    type: object
+  model.ProductAPI:
+    properties:
+      location_id:
+        type: string
+      name:
+        type: string
+      quantity:
+        type: integer
+      sku:
+        type: string
+    type: object
+  model.WarehouseLocationAPI:
+    properties:
+      capacity:
+        type: integer
+      name:
+        type: string
+    type: object
+  orders.OrderBody:
+    properties:
+      order_items:
+        items:
+          $ref: '#/definitions/model.OrderItemsAPI'
+        type: array
+      type:
+        type: string
+      warehouse_location_id:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: For test purpose
+  title: Indico Test
+  version: "1.0"
+paths:
+  /locations:
+    get:
+      consumes:
+      - application/json
+      description: Get all locations
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Locations
+      tags:
+      - Inventory Management
+    post:
+      consumes:
+      - application/json
+      description: Add new locations
+      parameters:
+      - description: Body payload
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.WarehouseLocationAPI'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Add Locations
+      tags:
+      - Inventory Management
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Sign in to get bearer token
+      parameters:
+      - description: Sign In Payload
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/auth.SignInBody'
+      produces:
+      - application/json
+      responses: {}
+      summary: Sign In
+      tags:
+      - User Authentication & Role Management
+  /orders:
+    get:
+      consumes:
+      - application/json
+      description: Get all orders
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: All Orders
+      tags:
+      - Order Processing
+  /orders/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get order by id
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Get Order
+      tags:
+      - Order Processing
+  /orders/receive:
+    post:
+      consumes:
+      - application/json
+      description: Do receive order
+      parameters:
+      - description: Body payload
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/orders.OrderBody'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Receive Order
+      tags:
+      - Order Processing
+  /orders/ship:
+    post:
+      consumes:
+      - application/json
+      description: Do ship order
+      parameters:
+      - description: Body payload
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/orders.OrderBody'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Ship Order
+      tags:
+      - Order Processing
+  /products:
+    get:
+      consumes:
+      - application/json
+      description: Get all products
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: All Products
+      tags:
+      - Inventory Management
+    post:
+      consumes:
+      - application/json
+      description: Add new products
+      parameters:
+      - description: Body payload
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.ProductAPI'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Post Products
+      tags:
+      - Inventory Management
+  /products/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a product
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Delete Product
+      tags:
+      - Inventory Management
+    get:
+      consumes:
+      - application/json
+      description: Get products by id
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Products
+      tags:
+      - Inventory Management
+    put:
+      consumes:
+      - application/json
+      description: Update products
+      parameters:
+      - description: Body payload
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.ProductAPI'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Update Products
+      tags:
+      - Inventory Management
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Sign up new account
+      parameters:
+      - description: Sign Up Payload
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/auth.SignUpBody'
+      produces:
+      - application/json
+      responses: {}
+      summary: Sign Up
+      tags:
+      - User Authentication & Role Management
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: Get all users
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Users
+      tags:
+      - User Authentication & Role Management
+  /users/me:
+    get:
+      consumes:
+      - application/json
+      description: Get user info
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Users Info
+      tags:
+      - User Authentication & Role Management
+securityDefinitions:
+  BearerAuth:
+    description: Bearer token
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

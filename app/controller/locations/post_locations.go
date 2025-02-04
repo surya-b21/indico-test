@@ -9,6 +9,14 @@ import (
 	"github.com/suryab-21/indico-test/app/service"
 )
 
+// @Summary      Add Locations
+// @Description  Add new locations
+// @Tags         Inventory Management
+// @Accept       application/json
+// @Produce		 application/json
+// @Param        data   body  model.WarehouseLocationAPI  true  "Body payload"
+// @Router       /locations [post]
+// @Security BearerAuth
 func PostLocations(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		helper.NewErrorResponse(w, http.StatusMethodNotAllowed, "Method not allowed")

@@ -10,6 +10,14 @@ import (
 	"github.com/suryab-21/indico-test/app/service"
 )
 
+// @Summary      Update Products
+// @Description  Update products
+// @Tags         Inventory Management
+// @Accept       application/json
+// @Produce		 application/json
+// @Param        data   body  model.ProductAPI  true  "Body payload"
+// @Router       /products/{id} [put]
+// @Security BearerAuth
 func PutProduct(w http.ResponseWriter, r *http.Request) {
 	var body model.ProductAPI
 	err := json.NewDecoder(r.Body).Decode(&body)

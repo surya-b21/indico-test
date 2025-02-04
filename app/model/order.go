@@ -5,8 +5,8 @@ import "github.com/google/uuid"
 type Order struct {
 	Base
 	OrderAPI
-	WarehouseLocation WarehouseLocation
-	OrderItems        []OrderItems
+	WarehouseLocation WarehouseLocation `json:"warehouse_location,omitempty"`
+	OrderItems        []OrderItems      `json:"order_items,omitempty"`
 }
 
 type OrderAPI struct {
