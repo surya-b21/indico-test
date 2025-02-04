@@ -6,6 +6,7 @@ import (
 	"github.com/rs/cors"
 	"github.com/suryab-21/indico-test/app/controller/auth"
 	"github.com/suryab-21/indico-test/app/controller/locations"
+	"github.com/suryab-21/indico-test/app/controller/orders"
 	"github.com/suryab-21/indico-test/app/controller/products"
 	"github.com/suryab-21/indico-test/app/controller/users"
 	"github.com/suryab-21/indico-test/app/middleware"
@@ -56,6 +57,12 @@ func authorizedRoute() *http.ServeMux {
 			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		}
 	})))
+
+	// orders
+	authorizedRoute.HandleFunc("GET /orders", orders.GetOrders)
+	authorizedRoute.Handle("/orders/receive", middleware.AdminIdentify(http.HandlerFunc(orders.PostReceiveOrder)))
+	authorizedRoute.Handle("/orders/ship", middleware.AdminIdentify(http.HandlerFunc(orders.PostShipOrder)))
+	authorizedRoute.HandleFunc("GET /orders/:id", orders.GetByIdOrders)
 
 	return authorizedRoute
 }

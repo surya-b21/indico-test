@@ -29,7 +29,7 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
 func GetByIdProducts(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	if id == "" {
-		helper.NewErrorResponse(w, http.StatusBadRequest, "please fill book id")
+		helper.NewErrorResponse(w, http.StatusBadRequest, "please fill product id")
 		return
 	}
 
