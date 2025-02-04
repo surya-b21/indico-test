@@ -48,4 +48,6 @@ func AutoMigrate(db *gorm.DB) error {
 // ModelList list of model
 var ModelList []interface{} = []interface{}{
 	&model.User{},
+	&model.Product{},
+	&model.WarehouseLocation{},
 }

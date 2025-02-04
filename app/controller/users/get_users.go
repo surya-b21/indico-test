@@ -14,6 +14,11 @@ import (
 )
 
 func GetUsers(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		helper.NewErrorResponse(w, http.StatusMethodNotAllowed, "Method not allowed")
+		return
+	}
+
 	db := service.DB
 
 	users := []model.User{}

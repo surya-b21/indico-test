@@ -2,6 +2,7 @@ package model
 
 type WarehouseLocation struct {
 	Base
+	WarehouseLocationAPI
 }
 
 type WarehouseLocationAPI struct {
