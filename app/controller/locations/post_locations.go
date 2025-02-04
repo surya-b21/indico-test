@@ -2,7 +2,6 @@ package locations
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/suryab-21/indico-test/app/helper"
@@ -11,8 +10,10 @@ import (
 )
 
 func PostLocations(w http.ResponseWriter, r *http.Request) {
-	log.Println("Blocked")
-	return
+	if r.Method != http.MethodPost {
+		helper.NewErrorResponse(w, http.StatusMethodNotAllowed, "Method not allowed")
+		return
+	}
 
 	var body model.WarehouseLocationAPI
 
@@ -38,7 +39,8 @@ func PostLocations(w http.ResponseWriter, r *http.Request) {
 	db.Create(&location)
 
 	response, _ := json.Marshal(map[string]interface{}{
-		"message": "success",
+		"status":  "success",
+		"message": "Successfully add new location",
 		"data":    location,
 	})
 

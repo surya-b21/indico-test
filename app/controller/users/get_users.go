@@ -25,8 +25,8 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 	db.Find(&users)
 
 	response, _ := json.Marshal(map[string]interface{}{
-		"message": "success",
-		"data":    users,
+		"status": "success",
+		"data":   users,
 	})
 
 	helper.NewSuccessResponse(w, response)
@@ -59,8 +59,8 @@ func GetUserMe(w http.ResponseWriter, r *http.Request) {
 	db.First(&user, "id = ?", claims["user_id"])
 
 	response, _ := json.Marshal(map[string]interface{}{
-		"message": "success",
-		"data":    user,
+		"status": "success",
+		"data":   user,
 	})
 
 	helper.NewSuccessResponse(w, response)
