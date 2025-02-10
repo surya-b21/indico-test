@@ -7,6 +7,7 @@ import (
 
 	"github.com/suryab-21/indico-test/app/model"
 	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
@@ -39,6 +40,15 @@ func InitDB() {
 			AutoMigrate(DB)
 		}
 	}
+}
+
+func DBtest() *gorm.DB {
+	db, _ := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
+
+	AutoMigrate(db)
+
+	DB = db
+	return db
 }
 
 func AutoMigrate(db *gorm.DB) error {

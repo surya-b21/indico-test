@@ -17,7 +17,7 @@ import (
 type SignUpBody struct {
 	SignInBody
 	Name string `json:"name" binding:"required"`
-	Role string `json:"role" binding:"required"`
+	Role string `json:"role"`
 }
 
 // @Summary      Sign Up
