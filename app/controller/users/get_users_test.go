@@ -91,9 +91,8 @@ func TestGetUserMe(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := gin.Default()
 
-	// Set user_id di context
 	r.GET("/users/me", func(c *gin.Context) {
-		c.Set("user_id", user.ID.String()) // Set ID user yang sesuai
+		c.Set("user_id", user.ID.String())
 		GetUserMe(c)
 	})
 
