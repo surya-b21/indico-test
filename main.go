@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/suryab-21/indico-test/app/router"
 	"github.com/suryab-21/indico-test/app/service"
 )
 
@@ -21,6 +21,7 @@ func main() {
 	service.InitDB()
 	r := gin.Default()
 
-	fmt.Println("Server listening on port :" + os.Getenv("PORT"))
+	router.SetupRoutes(r)
+
 	r.Run(":" + os.Getenv("PORT"))
 }
