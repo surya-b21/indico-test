@@ -1,10 +1,9 @@
 package locations
 
 import (
-	"encoding/json"
 	"net/http"
 
-	"github.com/suryab-21/indico-test/app/helper"
+	"github.com/gin-gonic/gin"
 	"github.com/suryab-21/indico-test/app/model"
 	"github.com/suryab-21/indico-test/app/service"
 )
@@ -16,16 +15,14 @@ import (
 // @Produce		 application/json
 // @Router       /locations [get]
 // @Security BearerAuth
-func GetLocations(w http.ResponseWriter, r *http.Request) {
+func GetLocations(c *gin.Context) {
 	db := service.DB
 
 	locations := []model.WarehouseLocation{}
 	db.Find(&locations)
 
-	response, _ := json.Marshal(map[string]interface{}{
+	c.JSON(http.StatusOK, gin.H{
 		"status": "success",
 		"data":   locations,
 	})
-
-	helper.NewSuccessResponse(w, response)
 }

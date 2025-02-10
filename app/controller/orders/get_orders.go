@@ -1,11 +1,10 @@
 package orders
 
 import (
-	"encoding/json"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/suryab-21/indico-test/app/helper"
 	"github.com/suryab-21/indico-test/app/model"
 	"github.com/suryab-21/indico-test/app/service"
 )
@@ -17,18 +16,16 @@ import (
 // @Produce		 application/json
 // @Router       /orders [get]
 // @Security BearerAuth
-func GetOrders(w http.ResponseWriter, r *http.Request) {
+func GetOrders(c *gin.Context) {
 	db := service.DB
 
 	orders := []model.Order{}
 	db.Preload("OrderItems").Find(&orders)
 
-	response, _ := json.Marshal(map[string]interface{}{
+	c.JSON(http.StatusOK, gin.H{
 		"status": "success",
 		"data":   orders,
 	})
-
-	helper.NewSuccessResponse(w, response)
 }
 
 // @Summary      Get Order
@@ -38,15 +35,21 @@ func GetOrders(w http.ResponseWriter, r *http.Request) {
 // @Produce		 application/json
 // @Router       /orders/{id} [get]
 // @Security BearerAuth
-func GetByIdOrders(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
+func GetByIdOrders(c *gin.Context) {
+	id := c.Param("id")
 	if id == "" {
-		helper.NewErrorResponse(w, http.StatusBadRequest, "please fill order id")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": "please fill order id",
+		})
 		return
 	}
 
 	if err := uuid.Validate(id); err == nil {
-		helper.NewErrorResponse(w, http.StatusBadRequest, "id is not valid")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": "id is not valid",
+		})
 		return
 	}
 
@@ -55,13 +58,15 @@ func GetByIdOrders(w http.ResponseWriter, r *http.Request) {
 	order := model.Order{}
 	query := db.Joins("OrderItems").First(&order, "id = ?", id)
 	if query.RowsAffected < 1 {
-		helper.NewErrorResponse(w, http.StatusNotFound, "order not found")
+		c.JSON(http.StatusNotFound, gin.H{
+			"status":  "error",
+			"message": "order not found",
+		})
+		return
 	}
 
-	response, _ := json.Marshal(map[string]interface{}{
+	c.JSON(http.StatusOK, gin.H{
 		"status": "success",
 		"data":   order,
 	})
-
-	helper.NewSuccessResponse(w, response)
 }

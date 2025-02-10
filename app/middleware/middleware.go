@@ -6,65 +6,32 @@ import (
 	"os"
 	"strings"
 
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/suryab-21/indico-test/app/helper"
 )
 
-type Middleware func(http.Handler) http.Handler
-
-// MiddlewareStack chains multiple middlewares
-func MiddlewareStack(ms ...Middleware) Middleware {
-	return Middleware(func(next http.Handler) http.Handler {
-		for i := len(ms) - 1; i >= 0; i-- {
-			m := ms[i]
-			next = m(next)
-		}
-		return next
-	})
-}
-
-func ClaimToken(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		header := r.Header.Get("Authorization")
-		if header == "" {
-			helper.NewErrorResponse(w, http.StatusUnauthorized, "empty auth header")
+func ClaimToken() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"status":  "error",
+				"message": "Authorization header is missing",
+			})
 			return
 		}
 
-		headerParts := strings.Split(header, " ")
+		headerParts := strings.Split(authHeader, " ")
 		if len(headerParts) != 2 {
-			helper.NewErrorResponse(w, http.StatusUnauthorized, "invalid auth header")
-			return
-		}
-
-		_, err := jwt.Parse(headerParts[1], func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, errors.New("unexpected signing method")
-			}
-
-			return []byte(os.Getenv("KEY")), nil
-		})
-		if err != nil {
-			helper.NewErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
-}
-
-func AdminIdentify(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		header := r.Header.Get("Authorization")
-
-		headerParts := strings.Split(header, " ")
-		if len(headerParts) != 2 {
-			helper.NewErrorResponse(w, http.StatusUnauthorized, "invalid auth header")
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"status":  "error",
+				"message": "Invalid authorization header",
+			})
 			return
 		}
 
 		claims := jwt.MapClaims{}
-		_, err := jwt.ParseWithClaims(headerParts[1], claims, func(token *jwt.Token) (interface{}, error) {
+		token, err := jwt.ParseWithClaims(headerParts[1], claims, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, errors.New("unexpected signing method")
 			}
@@ -73,48 +40,51 @@ func AdminIdentify(next http.Handler) http.Handler {
 		})
 
 		if err != nil {
-			helper.NewErrorResponse(w, http.StatusBadRequest, err.Error())
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"status":  "error",
+				"message": err.Error(),
+			})
 			return
 		}
 
-		if claims["role"] != "admin" {
-			helper.NewErrorResponse(w, http.StatusForbidden, "Access Forbidden")
+		if !token.Valid {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"status":  "error",
+				"message": "Invalid token",
+			})
 			return
 		}
 
-		next.ServeHTTP(w, r)
-	})
+		c.Set("user_id", claims["user_id"])
+		c.Set("role", claims["role"])
+		c.Next()
+	}
 }
 
-func StaffIdentify(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		header := r.Header.Get("Authorization")
+func AdminIdentify() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		role := c.GetString("role")
 
-		headerParts := strings.Split(header, " ")
-		if len(headerParts) != 2 {
-			helper.NewErrorResponse(w, http.StatusUnauthorized, "invalid auth header")
+		if role != "admin" {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"status":  "error",
+				"message": "Access forbidden",
+			})
 			return
 		}
+	}
+}
 
-		claims := jwt.MapClaims{}
-		_, err := jwt.ParseWithClaims(headerParts[1], claims, func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, errors.New("unexpected signing method")
-			}
+func StaffIdentify() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		role := c.GetString("role")
 
-			return []byte(os.Getenv("KEY")), nil
-		})
-
-		if err != nil {
-			helper.NewErrorResponse(w, http.StatusBadRequest, err.Error())
+		if role != "staff" {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"status":  "error",
+				"message": "Access forbidden",
+			})
 			return
 		}
-
-		if claims["role"] != "staff" {
-			helper.NewErrorResponse(w, http.StatusForbidden, "Access Forbidden")
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
+	}
 }

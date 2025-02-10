@@ -1,11 +1,10 @@
 package orders
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
-	"github.com/suryab-21/indico-test/app/helper"
+	"github.com/gin-gonic/gin"
 	"github.com/suryab-21/indico-test/app/model"
 	"github.com/suryab-21/indico-test/app/service"
 )
@@ -23,28 +22,31 @@ type OrderBody struct {
 // @Param        data   body  orders.OrderBody  true  "Body payload"
 // @Router       /orders/receive [post]
 // @Security BearerAuth
-func PostReceiveOrder(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		helper.NewErrorResponse(w, http.StatusMethodNotAllowed, "Method not allowed")
-		return
-	}
-
+func PostReceiveOrder(c *gin.Context) {
 	var body OrderBody
-	err := json.NewDecoder(r.Body).Decode(&body)
-	if err != nil {
-		helper.NewErrorResponse(w, http.StatusBadRequest, err.Error())
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": err.Error(),
+		})
 		return
 	}
 
 	if *body.Type == "ship" {
-		helper.NewErrorResponse(w, http.StatusBadRequest, "wrong type order")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": "wrong type order",
+		})
 		return
 	}
 
 	db := service.DB
 
 	if db.First(&model.WarehouseLocation{}, "id = ?", *body.WarehouseLocationID).RowsAffected < 1 {
-		helper.NewErrorResponse(w, http.StatusNotFound, "warehouse location not found")
+		c.JSON(http.StatusNotFound, gin.H{
+			"status":  "error",
+			"message": "warehouse location not found",
+		})
 		return
 	}
 
@@ -76,12 +78,10 @@ func PostReceiveOrder(w http.ResponseWriter, r *http.Request) {
 
 	}()
 
-	response, _ := json.Marshal(map[string]interface{}{
+	c.JSON(http.StatusOK, gin.H{
 		"status":  "success",
 		"message": "receive order will process",
 	})
-
-	helper.NewSuccessResponse(w, response)
 }
 
 // @Summary      Ship Order
@@ -92,28 +92,31 @@ func PostReceiveOrder(w http.ResponseWriter, r *http.Request) {
 // @Param        data   body  orders.OrderBody  true  "Body payload"
 // @Router       /orders/ship [post]
 // @Security BearerAuth
-func PostShipOrder(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		helper.NewErrorResponse(w, http.StatusMethodNotAllowed, "Method not allowed")
-		return
-	}
-
+func PostShipOrder(c *gin.Context) {
 	var body OrderBody
-	err := json.NewDecoder(r.Body).Decode(&body)
-	if err != nil {
-		helper.NewErrorResponse(w, http.StatusBadRequest, err.Error())
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": err.Error(),
+		})
 		return
 	}
 
 	if *body.Type == "receive" {
-		helper.NewErrorResponse(w, http.StatusBadRequest, "wrong type order")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": "wrong type order",
+		})
 		return
 	}
 
 	db := service.DB
 
 	if db.First(&model.WarehouseLocation{}, "id = ?", *body.WarehouseLocationID).RowsAffected < 1 {
-		helper.NewErrorResponse(w, http.StatusNotFound, "warehouse location not found")
+		c.JSON(http.StatusNotFound, gin.H{
+			"status":  "error",
+			"message": "warehouse location not found",
+		})
 		return
 	}
 
@@ -123,7 +126,10 @@ func PostShipOrder(w http.ResponseWriter, r *http.Request) {
 		db.First(&product, "id = ?", orderItem.ProductID)
 
 		if *orderItem.Quantity > *product.Quantity {
-			helper.NewErrorResponse(w, http.StatusNotFound, fmt.Sprintf("insufficient amount for product %s", *product.Name))
+			c.JSON(http.StatusNotFound, gin.H{
+				"status":  "error",
+				"message": fmt.Sprintf("insufficient amount for product %s", *product.Name),
+			})
 			return
 		}
 	}
@@ -155,10 +161,8 @@ func PostShipOrder(w http.ResponseWriter, r *http.Request) {
 		db.CreateInBatches(&orderItems, 100)
 	}()
 
-	response, _ := json.Marshal(map[string]interface{}{
+	c.JSON(http.StatusOK, gin.H{
 		"status":  "success",
 		"message": "receive order will process",
 	})
-
-	helper.NewSuccessResponse(w, response)
 }

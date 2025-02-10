@@ -1,11 +1,10 @@
 package products
 
 import (
-	"encoding/json"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/suryab-21/indico-test/app/helper"
 	"github.com/suryab-21/indico-test/app/service"
 )
 
@@ -16,31 +15,38 @@ import (
 // @Produce		 application/json
 // @Router       /products/{id} [delete]
 // @Security BearerAuth
-func DeleteProduct(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
+func DeleteProduct(c *gin.Context) {
+	id := c.Param("id")
 	if id == "" {
-		helper.NewErrorResponse(w, http.StatusBadRequest, "please fill book id")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": "please fill book id",
+		})
 		return
 	}
 
 	if err := uuid.Validate(id); err == nil {
-		helper.NewErrorResponse(w, http.StatusBadRequest, "id is not valid")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": "id is not valid",
+		})
 		return
 	}
 
 	db := service.DB
 	product, err := getProduct(id, db)
 	if err != nil {
-		helper.NewErrorResponse(w, http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusNotFound, gin.H{
+			"status":  "error",
+			"message": err.Error(),
+		})
 		return
 	}
 
 	db.Delete(&product)
 
-	response, _ := json.Marshal(map[string]interface{}{
+	c.JSON(http.StatusOK, gin.H{
 		"status":  "success",
 		"message": "Successfully delete product",
 	})
-
-	helper.NewSuccessResponse(w, response)
 }

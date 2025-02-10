@@ -6,6 +6,6 @@ type WarehouseLocation struct {
 }
 
 type WarehouseLocationAPI struct {
-	Name     *string `json:"name,omitempty" gorm:"type:varchar(100)"`
-	Capacity *int    `json:"capacity,omitempty" gorm:"type:int"`
+	Name     *string `json:"name,omitempty" gorm:"type:varchar(100)" binding:"required"`
+	Capacity *int    `json:"capacity,omitempty" gorm:"type:int" binding:"required"`
 }

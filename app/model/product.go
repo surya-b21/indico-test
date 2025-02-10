@@ -9,8 +9,8 @@ type Product struct {
 }
 
 type ProductAPI struct {
-	Name       *string    `json:"name,omitempty" gorm:"type:varchar(100)"`
-	Sku        *string    `json:"sku,omitempty" gorm:"type:varchar(100); unique"`
-	Quantity   *int       `json:"quantity,omitempty" gorm:"type:int"`
-	LocationID *uuid.UUID `json:"location_id,omitempty" gorm:"type:varchar(36)"`
+	Name       *string    `json:"name,omitempty" gorm:"type:varchar(100)" binding:"required"`
+	Sku        *string    `json:"sku,omitempty" gorm:"type:varchar(100); unique" binding:"required"`
+	Quantity   *int       `json:"quantity,omitempty" gorm:"type:int" binding:"required"`
+	LocationID *uuid.UUID `json:"location_id,omitempty" gorm:"type:varchar(36)" binding:"required"`
 }

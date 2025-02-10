@@ -2,24 +2,22 @@ package auth
 
 import (
 	"crypto/sha256"
-	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/suryab-21/indico-test/app/helper"
 	"github.com/suryab-21/indico-test/app/model"
 	"github.com/suryab-21/indico-test/app/service"
 )
 
 type SignUpBody struct {
 	SignInBody
-	Name string `json:"name"`
-	Role string `json:"role"`
+	Name string `json:"name" binding:"required"`
+	Role string `json:"role" binding:"required"`
 }
 
 // @Summary      Sign Up
@@ -29,27 +27,14 @@ type SignUpBody struct {
 // @Produce		 application/json
 // @Param        data   body  auth.SignUpBody  true  "Sign Up Payload"
 // @Router       /register [post]
-func SignUp(w http.ResponseWriter, r *http.Request) {
+func SignUp(c *gin.Context) {
 	var body SignUpBody
 
-	err := json.NewDecoder(r.Body).Decode(&body)
-	if err != nil {
-		helper.NewErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
-	}
-	log.Print(body)
-	if body.Name == "" {
-		helper.NewErrorResponse(w, http.StatusBadRequest, "Name is required")
-		return
-	}
-
-	if body.Username == "" {
-		helper.NewErrorResponse(w, http.StatusBadRequest, "Username is required")
-		return
-	}
-
-	if body.Password == "" {
-		helper.NewErrorResponse(w, http.StatusBadRequest, "Password is required")
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": err.Error(),
+		})
 		return
 	}
 
@@ -80,14 +65,18 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 
 	signedToken, err := token.SignedString([]byte(os.Getenv("KEY")))
 	if err != nil {
-		helper.NewErrorResponse(w, http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": err.Error(),
+		})
 		return
 	}
 
-	response, _ := json.Marshal(map[string]interface{}{
-		"token":   signedToken,
-		"expired": 6 * 3600,
+	c.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data": map[string]interface{}{
+			"token":   signedToken,
+			"expired": 6 * 3600,
+		},
 	})
-
-	helper.NewSuccessResponse(w, response)
 }

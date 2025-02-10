@@ -10,7 +10,7 @@ type OrderItems struct {
 }
 
 type OrderItemsAPI struct {
-	OrderID   *uuid.UUID `json:"order_id,omitempty" gorm:"type:varchar(36)"`
-	ProductID *uuid.UUID `json:"product_id,omitempty" gorm:"type:varchar(36)"`
-	Quantity  *int       `json:"quantity,omitempty" gorm:"type:int"`
+	OrderID   *uuid.UUID `json:"order_id,omitempty" gorm:"type:varchar(36)" binding:"required"`
+	ProductID *uuid.UUID `json:"product_id,omitempty" gorm:"type:varchar(36)" binding:"required"`
+	Quantity  *int       `json:"quantity,omitempty" gorm:"type:int" binding:"required"`
 }

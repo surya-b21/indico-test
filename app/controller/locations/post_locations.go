@@ -1,10 +1,9 @@
 package locations
 
 import (
-	"encoding/json"
 	"net/http"
 
-	"github.com/suryab-21/indico-test/app/helper"
+	"github.com/gin-gonic/gin"
 	"github.com/suryab-21/indico-test/app/model"
 	"github.com/suryab-21/indico-test/app/service"
 )
@@ -17,27 +16,14 @@ import (
 // @Param        data   body  model.WarehouseLocationAPI  true  "Body payload"
 // @Router       /locations [post]
 // @Security BearerAuth
-func PostLocations(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		helper.NewErrorResponse(w, http.StatusMethodNotAllowed, "Method not allowed")
-		return
-	}
-
+func PostLocations(c *gin.Context) {
 	var body model.WarehouseLocationAPI
 
-	err := json.NewDecoder(r.Body).Decode(&body)
-	if err != nil {
-		helper.NewErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	if body.Name == nil {
-		helper.NewErrorResponse(w, http.StatusUnprocessableEntity, "Name is required")
-		return
-	}
-
-	if body.Capacity == nil {
-		helper.NewErrorResponse(w, http.StatusUnprocessableEntity, "Capacity is required")
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": err.Error(),
+		})
 		return
 	}
 
@@ -46,11 +32,9 @@ func PostLocations(w http.ResponseWriter, r *http.Request) {
 	location.WarehouseLocationAPI = body
 	db.Create(&location)
 
-	response, _ := json.Marshal(map[string]interface{}{
+	c.JSON(http.StatusOK, gin.H{
 		"status":  "success",
 		"message": "Successfully add new location",
 		"data":    location,
 	})
-
-	helper.NewSuccessResponse(w, response)
 }

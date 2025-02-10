@@ -1,10 +1,9 @@
 package products
 
 import (
-	"encoding/json"
 	"net/http"
 
-	"github.com/suryab-21/indico-test/app/helper"
+	"github.com/gin-gonic/gin"
 	"github.com/suryab-21/indico-test/app/model"
 	"github.com/suryab-21/indico-test/app/service"
 )
@@ -17,36 +16,13 @@ import (
 // @Param        data   body  model.ProductAPI  true  "Body payload"
 // @Router       /products [post]
 // @Security BearerAuth
-func PostProduct(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		helper.NewErrorResponse(w, http.StatusMethodNotAllowed, "Method not allowed")
-		return
-	}
-
+func PostProduct(c *gin.Context) {
 	var body model.ProductAPI
-	err := json.NewDecoder(r.Body).Decode(&body)
-	if err != nil {
-		helper.NewErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	if body.Name == nil {
-		helper.NewErrorResponse(w, http.StatusUnprocessableEntity, "name is required")
-		return
-	}
-
-	if body.Sku == nil {
-		helper.NewErrorResponse(w, http.StatusUnprocessableEntity, "sku is required")
-		return
-	}
-
-	if body.Quantity == nil {
-		helper.NewErrorResponse(w, http.StatusUnprocessableEntity, "quantity is required")
-		return
-	}
-
-	if body.LocationID == nil {
-		helper.NewErrorResponse(w, http.StatusUnprocessableEntity, "location id is required")
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": err.Error(),
+		})
 		return
 	}
 
@@ -55,11 +31,9 @@ func PostProduct(w http.ResponseWriter, r *http.Request) {
 	product.ProductAPI = body
 	db.Create(&product)
 
-	response, _ := json.Marshal(map[string]interface{}{
+	c.JSON(http.StatusOK, gin.H{
 		"status":  "success",
 		"message": "Successfully add new product",
 		"data":    product,
 	})
-
-	helper.NewSuccessResponse(w, response)
 }

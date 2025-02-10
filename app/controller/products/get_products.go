@@ -1,12 +1,11 @@
 package products
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/suryab-21/indico-test/app/helper"
 	"github.com/suryab-21/indico-test/app/model"
 	"github.com/suryab-21/indico-test/app/service"
 	"gorm.io/gorm"
@@ -19,18 +18,16 @@ import (
 // @Produce		 application/json
 // @Router       /products [get]
 // @Security BearerAuth
-func GetProducts(w http.ResponseWriter, r *http.Request) {
+func GetProducts(c *gin.Context) {
 	db := service.DB
 
 	products := []model.Product{}
 	db.Joins("WarehouseLocation").Find(&products)
 
-	response, _ := json.Marshal(map[string]interface{}{
+	c.JSON(http.StatusOK, gin.H{
 		"message": "success",
 		"data":    products,
 	})
-
-	helper.NewSuccessResponse(w, response)
 }
 
 // @Summary      Products
@@ -40,31 +37,38 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
 // @Produce		 application/json
 // @Router       /products/{id} [get]
 // @Security BearerAuth
-func GetByIdProducts(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
+func GetByIdProducts(c *gin.Context) {
+	id := c.Param("id")
 	if id == "" {
-		helper.NewErrorResponse(w, http.StatusBadRequest, "please fill product id")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": "please fill product id",
+		})
 		return
 	}
 
 	if err := uuid.Validate(id); err == nil {
-		helper.NewErrorResponse(w, http.StatusBadRequest, "id is not valid")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": "id is not valid",
+		})
 		return
 	}
 
 	db := service.DB
 	product, err := getProduct(id, db)
 	if err != nil {
-		helper.NewErrorResponse(w, http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusNotFound, gin.H{
+			"status":  "error",
+			"message": err.Error(),
+		})
 		return
 	}
 
-	response, _ := json.Marshal(map[string]interface{}{
+	c.JSON(http.StatusOK, gin.H{
 		"status": "success",
 		"data":   *product,
 	})
-
-	helper.NewSuccessResponse(w, response)
 }
 
 func getProduct(id string, db *gorm.DB) (*model.Product, error) {

@@ -2,21 +2,20 @@ package auth
 
 import (
 	"crypto/sha256"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/suryab-21/indico-test/app/helper"
 	"github.com/suryab-21/indico-test/app/model"
 	"github.com/suryab-21/indico-test/app/service"
 )
 
 type SignInBody struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
 }
 
 // @Summary      Sign In
@@ -26,22 +25,14 @@ type SignInBody struct {
 // @Produce		 application/json
 // @Param        data   body  auth.SignInBody  true  "Sign In Payload"
 // @Router       /login [post]
-func SignIn(w http.ResponseWriter, r *http.Request) {
+func SignIn(c *gin.Context) {
 	var body SignInBody
 
-	err := json.NewDecoder(r.Body).Decode(&body)
-	if err != nil {
-		helper.NewErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	if body.Username == "" {
-		helper.NewErrorResponse(w, http.StatusBadRequest, "Username is required")
-		return
-	}
-
-	if body.Password == "" {
-		helper.NewErrorResponse(w, http.StatusBadRequest, "Password is required")
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": err.Error(),
+		})
 		return
 	}
 
@@ -50,7 +41,10 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 	mod := db.Where("username = ?", body.Username).First(&user)
 
 	if mod.RowsAffected < 1 {
-		helper.NewErrorResponse(w, http.StatusNotFound, "User not found")
+		c.JSON(http.StatusNotFound, gin.H{
+			"status":  "error",
+			"message": "User not found",
+		})
 		return
 	}
 
@@ -59,7 +53,10 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 	hashPassword := fmt.Sprintf("%x", hash.Sum([]byte(os.Getenv("SALT"))))
 
 	if hashPassword != *user.Password {
-		helper.NewErrorResponse(w, http.StatusBadRequest, "Wrong user / password")
+		c.JSON(http.StatusNotFound, gin.H{
+			"status":  "error",
+			"message": "Wrong username or password",
+		})
 		return
 	}
 
@@ -71,14 +68,18 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 
 	signedToken, err := token.SignedString([]byte(os.Getenv("KEY")))
 	if err != nil {
-		helper.NewErrorResponse(w, http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": err.Error(),
+		})
 		return
 	}
 
-	response, _ := json.Marshal(map[string]interface{}{
-		"token":   signedToken,
-		"expired": 6 * 3600,
+	c.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data": map[string]interface{}{
+			"token":   signedToken,
+			"expired": 6 * 3600,
+		},
 	})
-
-	helper.NewSuccessResponse(w, response)
 }
