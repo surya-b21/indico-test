@@ -163,6 +163,6 @@ func PostShipOrder(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  "success",
-		"message": "receive order will process",
+		"message": "ship order will process",
 	})
 }

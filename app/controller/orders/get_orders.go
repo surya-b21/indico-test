@@ -45,7 +45,7 @@ func GetByIdOrders(c *gin.Context) {
 		return
 	}
 
-	if err := uuid.Validate(id); err == nil {
+	if err := uuid.Validate(id); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "error",
 			"message": "id is not valid",
@@ -56,7 +56,7 @@ func GetByIdOrders(c *gin.Context) {
 	db := service.DB
 
 	order := model.Order{}
-	query := db.Joins("OrderItems").First(&order, "id = ?", id)
+	query := db.Preload("OrderItems").First(&order, "id = ?", id)
 	if query.RowsAffected < 1 {
 		c.JSON(http.StatusNotFound, gin.H{
 			"status":  "error",
