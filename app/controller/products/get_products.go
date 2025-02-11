@@ -47,7 +47,7 @@ func GetByIdProducts(c *gin.Context) {
 		return
 	}
 
-	if err := uuid.Validate(id); err == nil {
+	if err := uuid.Validate(id); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "error",
 			"message": "id is not valid",
